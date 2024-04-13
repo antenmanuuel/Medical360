@@ -46,7 +46,7 @@ app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/departments", departmentRouter);
 
-const mongoURI = process.env.MONGODB_URI;
+const mongoURI = "mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360";
 
 // Connect to the database
 mongoose
