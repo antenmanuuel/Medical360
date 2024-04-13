@@ -10,6 +10,11 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader("Permissions-Policy", "geolocation=(), fullscreen=()");
+  next();
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -21,12 +26,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/uploads", express.static("uploads"));
-
-app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'interest-cohort=()');
-  next();
-});
-
 
 // Serve static files (Make sure this is before your catch-all route if you are using React Router)
 app.use(express.static(path.join(__dirname, "../client/dist")));
