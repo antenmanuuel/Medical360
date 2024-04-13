@@ -80,7 +80,7 @@ async function login(req, res) {
       .cookie("token", token, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: true,
       })
       .status(200)
       .json({
@@ -103,7 +103,7 @@ function logout(req, res) {
       httpOnly: true,
       expires: new Date(0),
       secure: true,
-      sameSite: "None",
+      sameSite: "none",
     })
     .send();
 }
