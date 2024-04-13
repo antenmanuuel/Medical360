@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: "https://medical360-d65d823d7d75.herokuapp.com/",
     credentials: true, // For sending cookies over CORS
   })
 );
