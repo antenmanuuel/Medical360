@@ -37,14 +37,17 @@ const RegistrationForm = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/auth/register", {
-        // Adjust the URL as per your setup
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registrationData),
-      });
+      const response = await fetch(
+        "https://medical360-d65d823d7d75.herokuapp.com/register",
+        {
+          // Adjust the URL as per your setup
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(registrationData),
+        }
+      );
 
       if (response.ok) {
         console.log("Registration successful");
