@@ -13,7 +13,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // Ensure the client's address is correctly listed
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true, // For sending cookies over CORS
   })
 );
@@ -22,13 +22,13 @@ app.use(cookieParser());
 
 app.use("/uploads", express.static("uploads"));
 
-// // Serve static files (Make sure this is before your catch-all route if you are using React Router)
-// app.use(express.static(path.join(__dirname, "../client/dist")));
+// Serve static files (Make sure this is before your catch-all route if you are using React Router)
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// // // Catch-all handler for SPA (Make sure the path is correctly formatted)
-// app.get("*", (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
-// });
+// // Catch-all handler for SPA (Make sure the path is correctly formatted)
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
+});
 
 // set up routers
 const authRouter = require("./routes/auth-router");
@@ -41,15 +41,14 @@ app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/departments", departmentRouter);
 
+const mongoURI = process.env.MONGODB_URI;
+
 // Connect to the database
 mongoose
-  .connect(
-    "mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to Database"))
   .catch((e) => console.error("Connection error", e.message));
 

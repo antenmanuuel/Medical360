@@ -9,8 +9,9 @@ const Patient = require("./models/Patient");
 
 require("dotenv").config();
 
+const mongoURI = process.env.MONGODB_URI;
 
-mongoose.connect("mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360", {
+mongoose.connect(mongoURI, {
   useUnifiedTopology: true,
 });
 

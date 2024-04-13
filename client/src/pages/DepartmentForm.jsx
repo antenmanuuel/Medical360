@@ -40,7 +40,7 @@ const DepartmentForm = () => {
         });
         console.log("I am creating the department data");
     
-        axios.post('http://localhost:3000/departments/department', data, {
+        axios.post('https://medical360-d65d823d7d75.herokuapp.com/departments/department', data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

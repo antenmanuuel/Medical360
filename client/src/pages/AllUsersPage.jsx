@@ -13,7 +13,7 @@ const AllUsersPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/users", {
+        const response = await fetch("https://medical360-d65d823d7d75.herokuapp.com/users", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

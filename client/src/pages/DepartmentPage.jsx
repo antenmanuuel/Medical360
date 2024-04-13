@@ -1,14 +1,7 @@
 import React, { useContext, useState ,useEffect } from "react";
 import DepartmentList from "../components/DepartmentList";
 import AuthContext from "../auth/AuthContext";
-import emergency from "../images/emergencybutton.png";
-import pediatric from "../images/pediatric.jpeg";
-import obstetrics from "../images/obstetrics.png";
-import cardiology from "../images/cardiology.jpeg";
-import neurology from "../images/neurology.png";
-import psychiatry from "../images/Psychiatry.jpeg";
 import DepartmentHead from "../components/DepartmentHead";
-import DepartmentForm from "./DepartmentForm";
 import Banner from "../components/Banner";
 import { useNavigate } from "react-router-dom";
 
