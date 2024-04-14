@@ -34,10 +34,13 @@ import PatientNotification from "./pages/PatientNotification";
 import AllUsersPage from "./pages/AllUsersPage";
 import EditUserPage from "./pages/EditUserPage";
 import UserApprovalPage from "./pages/UserApprovalsPage";
-
+import axios from "axios";
 import DepartmentForm from "./pages/DepartmentForm";
 
 import { GlobalContextProvider } from "./store/GlobalContext";
+
+axios.defaults.withCredentials = true;
+
 
 
 function App() {
