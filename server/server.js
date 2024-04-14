@@ -1,41 +1,58 @@
 const express = require("express");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
-
-// config .env files
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+// Permissions-Policy header setup
 app.use((req, res, next) => {
   res.setHeader("Permissions-Policy", "geolocation=(), fullscreen=()");
   next();
 });
 
+// Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "https://medical360-d65d823d7d75.herokuapp.com/",
-    credentials: true, // For sending cookies over CORS
+    origin: "https://medical360-d65d823d7d75.herokuapp.com",
+    credentials: true, // Necessary for cookies to be sent back and forth
   })
 );
 app.use(express.json());
-app.use(cookieParser());
 
+// Session configuration
+app.use(
+  session({
+    secret: process.env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", 
+      sameSite: "lax",
+    },
+  })
+);
+
+// Static files
 app.use("/uploads", express.static("uploads"));
-
-// Serve static files (Make sure this is before your catch-all route if you are using React Router)
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// // Catch-all handler for SPA (Make sure the path is correctly formatted)
+// SPA catch-all handler
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
 });
 
-// set up routers
+// Routes
 const authRouter = require("./routes/auth-router");
 const userRouter = require("./routes/user-router");
 const patientRouter = require("./routes/patient-router");
@@ -46,19 +63,24 @@ app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/departments", departmentRouter);
 
-const mongoURI = "mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360";
-
-// Connect to the database
+// MongoDB connection
+const mongoURI = process.env.MONGODB_URI;
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("Connected to Database"))
-  .catch((e) => console.error("Connection error", e.message));
+  .then(() => {
+    console.log("Connected to Database");
+  })
+  .catch((e) => {
+    console.error("Connection error", e.message);
+  });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// Run the server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

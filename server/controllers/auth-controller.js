@@ -6,106 +6,102 @@ const Doctor = require("../models/Doctor");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// is user logged in currently
 async function loggedIn(req, res) {
-  // method : GET
-  // route : /auth/loggedIn
+  if (!req.session.userId) {
+    return res.status(200).json({
+      loggedIn: false,
+      user: null,
+      department: null,
+      doctor: null,
+      isAdmin: false,
+    });
+  }
+
   try {
-    // find user in database using JWT
-    let userId = auth.userVerify(req);
+    const user = await User.findById(req.session.userId).select(
+      "-passwordHash"
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    // if user DNE or token expired return null user
-    if (!userId)
-      return res.status(200).json({
-        loggedIn: false,
-        user: null,
-        department: null,
-        isDoctor: false,
-        isAdmin: false,
-      });
+    let departmentDetails = null,
+      doctorDetails = null;
 
-    // else find user and return it
-    const user = await User.findById(userId);
-    let departmentId = null;
-    if (user.department)
-      departmentId = await Department.findById(user.department);
+    if (user.department) {
+      departmentDetails = await Department.findById(user.department)
+        .select("departmentName iconPath")
+        .populate({
+          path: "head",
+          select: "name -_id",
+          model: "Doctor", // Ensure this matches your schema
+        });
+    }
+
+    if (user.doctor) {
+      doctorDetails = await Doctor.findById(user.doctor)
+        .select(
+          "departmentName surgeryCount appointmentNo hours profileDetails"
+        )
+        .populate("departmentName", "departmentName -_id");
+    }
 
     return res.status(200).json({
       loggedIn: true,
-      user: user,
-      department: departmentId ? departmentId.departmentName : null,
-      isDoctor: user.doctor !== null,
-      isAdmin: user.isAdmin,
+      user: {
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
+      department: departmentDetails,
+      doctor: doctorDetails,
     });
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 }
 
 async function login(req, res) {
-  // method : POST
-  // route : /auth/register
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Please enter all required fields." });
+  }
 
   try {
-    // check fields are provided
-    const { email, password } = req.body;
-    if (!email || !password)
-      return res.status(400).json({
-        message: "Please enter all required fields.",
-      });
-
-    // find user by email. If none exists send status of 401 with wrong fields provided
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user)
-      return res.status(401).json({
-        message: "Wrong email or password provided.",
-      });
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res
+        .status(401)
+        .json({ message: "Wrong email or password provided." });
+    }
 
-    let id = user._id;
-
-    // check password matches
-    const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
-    if (!passwordCorrect)
-      return res.status(401).json({
-        message: "Wrong email or password provided.",
-      });
-
-    // login the user by signing a token and sending it in a cookie
-    // then send status of 200 with user info
-    let token = auth.tokenSign(id);
-
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-      })
-      .status(200)
-      .json({
-        user: user,
-      });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
+    // Setting the user ID in session
+    req.session.userId = user._id;
+    res.status(200).json({
+      message: "Logged in successfully",
+      user: {
+        name: user.name,
+        isAdmin: user.isAdmin,
+        departmentName: user.department ? user.department.departmentName : null,
+        isDoctor: Boolean(user.doctor),
+      },
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 }
 
 function logout(req, res) {
-  // method : GET
-  // route : /auth/logout
-
-  // send cookie with token = "" and expires as soon as it gets there
-  res
-    .cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      secure: true,
-      sameSite: "None",
-    })
-    .send();
+  req.session.destroy((err) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Could not log out, please try again." });
+    }
+    res.status(200).send("Logged out successfully");
+  });
 }
 
 async function register(req, res) {
