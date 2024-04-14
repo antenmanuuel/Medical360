@@ -49,26 +49,54 @@ function AuthContextProvider({ children }) {
   }, []);
 
   auth.getLoggedIn = async function () {
-    // get whether user is logged in or not
     try {
       const response = await api.loggedIn();
       if (response.status === 200) {
         setAuth({
-          ...auth,
           user: response.data.user,
           loggedIn: response.data.loggedIn,
           isAdmin: response.data.isAdmin,
           isDoctor: response.data.isDoctor,
           department: response.data.department,
         });
+      } else {
+        setAuth((prev) => ({ ...prev, loggedIn: false, user: null }));
       }
     } catch (err) {
-      console.log(err.message);
+      console.error("Failed to verify login status:", err.message);
+      setAuth((prev) => ({ ...prev, loggedIn: false, user: null }));
     }
   };
 
-  // register a user, upon success return true, otherwise return false
-  auth.register = function ({
+  auth.login = async function (email, password) {
+    try {
+      const response = await api.login(email, password);
+      if (response.status === 200) {
+        auth.getLoggedIn(); // Refresh the auth state based on current session status
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
+  auth.logout = async function () {
+    try {
+      const response = await api.logout();
+      if (response.status === 200) {
+        setAuth({
+          user: null,
+          loggedIn: false,
+          isAdmin: false,
+          isDoctor: false,
+          department: null,
+        });
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  auth.register = async function ({
     name,
     email,
     password,
@@ -78,47 +106,22 @@ function AuthContextProvider({ children }) {
     isDoctor,
     isNurse,
   }) {
-    let new_user = {
-      name,
-      email,
-      password,
-      department,
-      phone_number,
-      isAdmin,
-      isDoctor,
-      isNurse,
-    };
-    users.push(new_user);
-    console.log(users);
-    return true;
-  };
-
-  // login the user with email and passwrod. Upon success, set user to logged in. upon false, print why and return false
-  auth.login = async function (email, password) {
     try {
-      const response = await api.login(email, password);
+      const response = await api.register({
+        name,
+        email,
+        password,
+        department,
+        phone_number,
+        isAdmin,
+        isDoctor,
+        isNurse,
+      });
       if (response.status === 200) {
-        auth.getLoggedIn();
+        auth.login(email, password); // Optionally log in the user directly after registration
       }
     } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // logout the user
-  auth.logout = async function () {
-    const response = await api.logout();
-    if (response.status === 200) {
-      console.log("logged out");
-      setAuth({
-        ...auth,
-        user: null,
-        loggedIn: false,
-        isAdmin: false,
-        isDoctor: false,
-        isNurse: false,
-        department: null,
-      });
+      console.error("Registration failed:", error);
     }
   };
 
