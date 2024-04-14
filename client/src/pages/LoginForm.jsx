@@ -11,7 +11,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (auth.loggedIn) {
-      navigate("/apppage");
+      navigate("https://medical360-d65d823d7d75.herokuapp.com/apppage");
       setWrong(false);
     }
   }, [auth.loggedIn, navigate]);
