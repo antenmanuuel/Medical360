@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const auth = require("../auth-manager");
 const Department = require("../models/Department");
 const Doctor = require("../models/Doctor");
 const mongoose = require("mongoose");
