@@ -11,10 +11,10 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (auth.loggedIn) {
-      navigate("https://medical360-d65d823d7d75.herokuapp.com/apppage");
+      navigate("/apppage");
       setWrong(false);
     }
-  }, [auth.loggedIn, navigate]);
+  }, []);
 
   const fields = [
     { name: "Email", initialValue: "", editable: true },
