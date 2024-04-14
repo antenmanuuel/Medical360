@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "https://medical360-d65d823d7d75.herokuapp.com",
-    credentials: true, // Necessary for cookies to be sent back and forth
+    credentials: true,
   })
 );
 app.use(express.json());
@@ -35,10 +35,9 @@ app.use(
       mongoUrl: process.env.MONGODB_URI,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", 
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     },
   })
 );
