@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "https://medical360-d65d823d7d75.herokuapp.com",
+    methods: ["POST", "PUT", "GET", "DELETE", "PATCH"],
     credentials: true,
   })
 );
