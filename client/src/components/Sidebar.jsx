@@ -44,7 +44,7 @@ const Sidebar = () => {
             </Link>
           </li>
         )}
-        {(user.name == "Admin" ) && (
+        {user.isAdmin && (
           <li>
             <Link to="/resource-management" className="hover:underline">
               Resource Management

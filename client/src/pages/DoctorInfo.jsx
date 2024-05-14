@@ -11,7 +11,9 @@ const DoctorInfo = () => {
   const [doctor, setDoctor] = useState(null);
   const [department, setDepartment] = useState(null);
   const [userId, setUserId] = useState(null);
-  const { getDoctor, getDepartment, getDoctorByUser, getEvents } =
+  const [user, setUser] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const { getDoctor, getDepartment, getDoctorByUser, getEvents,getUser,BASE_URL} =
     useGlobalContext();
 
   const initialAverageTimes = {
@@ -104,6 +106,12 @@ const DoctorInfo = () => {
           setDepartment(dept.departmentName);
           const userData = await getDoctorByUser(doctorId);
           setUserId(userData._id);
+          const userDatawithImage = await getUser(userData._id);
+          setUser(userDatawithImage);
+          console.log(`Image URL: ${BASE_URL}/${userDatawithImage.image}`);
+          setImagePreview(`${BASE_URL}/${userDatawithImage.image}`);
+
+         
 
           const events = await getEvents(userData._id);
 
@@ -119,7 +127,9 @@ const DoctorInfo = () => {
       fetchDoctorDetails();
     }
   }, [doctorId]);
-
+ 
+  
+  
   if (!doctor) {
     return <p>Loading...</p>;
   }
@@ -129,6 +139,7 @@ const DoctorInfo = () => {
   const doctorName = location.state?.doctorName;
   const { patientId, patientName } = location.state || {};
   const previousPage = location.state?.origin || "/apppage";
+ 
   return (
     <>
       <Banner goBackPath={previousPage} showGoBackButton={true} />
@@ -141,7 +152,7 @@ const DoctorInfo = () => {
               style={{ width: "200px", height: "200px" }}
             >
               <img
-                src={doctor.image}
+                src={imagePreview}
                 alt={doctorName}
                 className="w-full h-full object-cover"
               />

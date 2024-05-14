@@ -127,10 +127,24 @@ function ProcessContextProvider({ children }) {
     }
   };
 
+  const updateProcedure = async function (processId, procedureId, update) {
+    try {
+      const response = await fetch(`${BASE_URL}/process/update-procedure/${processId}/${procedureId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(update)
+      })
+      if (response.ok)
+        console.log(response.message ? response.message : "updated procedure sucessfully");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ProcessContext.Provider
       value={{
-        ...processManager, createProcess, getProcess, getAllProcesses, deleteProcess, updateProcess, addProcedure, deleteProcedure
+        ...processManager, createProcess, getProcess, getAllProcesses, deleteProcess, updateProcess, addProcedure, deleteProcedure, updateProcedure
       }}
     >
       {children}

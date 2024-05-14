@@ -38,6 +38,10 @@ const userSchema = new Schema({
   //   type: String,
   //   default: "pending",
   // },
+  image: { 
+    type: String,
+    default: '' 
+},
 });
 
 const User = mongoose.model("User", userSchema);

@@ -93,11 +93,39 @@ async function deleteUser(req, res) {
   }
 }
 
+async function uploadUserImage(req, res) {
+  if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+  }
+  try {
+      const userId = req.params.id;
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Update the user profile with the URL/path of the new image
+      const relativeImagePath = `user_images/${req.file.filename}`;
+      user.image = relativeImagePath; 
+      console.log('File path:', req.file.path); // Full path where the file is saved
+    console.log('File name:', req.file.filename);
+      await user.save();
+
+      res.status(200).json({
+          message: 'Image uploaded successfully',
+          imagePath: relativeImagePath
+      });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+}
+
 const UserController = {
   getUser,
   getAllUsers,
   updateUser,
   deleteUser,
+  uploadUserImage,
 };
 
 module.exports = UserController;

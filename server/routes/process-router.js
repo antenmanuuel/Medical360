@@ -9,6 +9,9 @@ router.post('/', ProcessController.createProcess);
 // PUT to add procedure to specific process id
 router.put('/add-procedure/:id', ProcessController.addProcedure);
 
+// PUT to update procedure in process data by id
+router.put('/update-procedure/:processId/:procedureId', ProcessController.updateProcedure);
+
 // PUT to update process data by id
 router.put('/:id', ProcessController.updateProcess);
 

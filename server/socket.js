@@ -2,7 +2,9 @@ const { Server } = require("socket.io");
 const axios = require('axios');  
 
 const registerSocketServer = (server) => {
+
     //const BASE_URL = "http://localhost:5173";
+
     const BASE_URL = "https://medical360-d65d823d7d75.herokuapp.com" 
     const io = new Server(server, {
         cors: {

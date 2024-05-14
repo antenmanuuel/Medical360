@@ -17,7 +17,8 @@ const processSchema = new Schema({
             doctor: {type: Schema.Types.ObjectId, ref: "Doctor", required: true},
             roomNo: {type: String, required: true},
             equipment: {type: [Schema.Types.ObjectId], ref: "Equipment", required: true, default: []},
-            date: {type: Date, required: true, default: Date.now()},
+            start: {type: Date, required: true, default: Date.now()},
+            end: {type: Date, required: true, default: Date.now()},
             operation: String,
             notes: {type: String, required: true},
             completed: {type: Boolean, default: false}

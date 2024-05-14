@@ -41,6 +41,7 @@ import MyCalendar from "./pages/MyCalendar";
 import BugInfoPage from "./pages/BugInfoPage";
 import FeedbackInfoPage from "./pages/FeedbackInfoPage";
 import AllProcessesPage from "./pages/AllProcessesPage";
+import ProcessDetailsPage from "./pages/ProcessDetailsPage";
 
 function App() {
 
@@ -78,6 +79,7 @@ function App() {
           path="/resource-management"
           element={user ? <ResourceManagementPage /> : <Navigate to="/" /> }
         />
+        <Route path="/process-details" element={user ? <ProcessDetailsPage /> : <Navigate to="/" />} />
         <Route path="/doctor-schedule/:userId" element={user ? <MyCalendar /> : <Navigate to="/" /> } />
         <Route path="/user-schedule/:userId" element={user ? <MyCalendar /> : <Navigate to="/" /> } />
         <Route path="/bugs" element={user ? <BugReport /> : <Navigate to="/" /> } />

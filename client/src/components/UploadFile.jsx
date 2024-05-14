@@ -4,21 +4,18 @@ import { useGlobalContext } from "../hooks/useGlobalContext";
 
 const FileUpload = ({ patientId }) => {
   const [files, setFiles] = useState([]);
-  const { updatePatient, getPatient } = useGlobalContext();
+  const { updatePatient, currentPatient } = useGlobalContext();
 
   useEffect(() => {
     const fetchPatientFiles = async () => {
-      const patient = await getPatient(patientId);
-      if (patient && patient.fileData) {
-        setFiles(patient.fileData.map((data, index) => ({
-          name: `File ${index + 1}`,
-          data: data,
-        })));
-      }
+      setFiles(currentPatient.fileData.map((data, index) => ({
+        name: `File ${index + 1}`,
+        data: data,
+      })));
     };
-
-    fetchPatientFiles();
-  }, [patientId, getPatient]);
+    if (currentPatient && currentPatient.fileData) 
+      fetchPatientFiles();
+  }, [currentPatient]);
 
 
   const handleFileChange = async (event) => {

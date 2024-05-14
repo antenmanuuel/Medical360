@@ -1,19 +1,43 @@
 
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import { Link } from 'react-router-dom';
-
+import { useGlobalContext } from "../hooks/useGlobalContext";
 const StaffCard = ({ staff,headDoctor,origin }) => {
+  const [user, setUser] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const {getDoctorByUser, getEvents,getUser,BASE_URL} =
+    useGlobalContext();
+  useEffect(() => {
+    const fetchDoctorDetails = async () => {
+      try {
+          
+          const userData = await getDoctorByUser(staff._id);
+          const userDatawithImage = await getUser(userData._id);
+          setUser(userDatawithImage);
+          console.log(`Image URL: ${BASE_URL}/${userDatawithImage.image}`);
+          setImagePreview(`${BASE_URL}/${userDatawithImage.image}`);
+        
+      } catch (error) {
+        console.error("Failed to fetch doctor or department details", error);
+      }
+    };
+
+    if (staff._id) {
+      fetchDoctorDetails();
+    }
+  }, [staff._id]);
+ 
   return (
     <div className="bg-[#CAD6FF] p-4 rounded-lg shadow-lg max-w-xs mx-auto">
       {/* Image and Name */}
       <div className="flex flex-col items-center">
         <div className="flex-none rounded-full overflow-hidden border-4 border-white shadow-lg mb-4"
              style={{ width: '120px', height: '120px' }}>
-          {/* <img
-            src={staff.image || defaultImageUrl}  // Add default image path
+          <img
+            src={imagePreview}  // Add default image path
             alt={staff.name || 'Doctor Name'}
             className="w-full h-full object-cover"
-          /> */}
+          />
         </div>
         <h2 className="text-xl font-semibold text-center text-[#2260FF]">
           {staff.name || 'Unknown Name'}

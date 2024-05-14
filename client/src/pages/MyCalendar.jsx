@@ -272,7 +272,7 @@ const MyCalendar = () => {
               </div>
             </div>
 
-            {events.length > 0 ? (
+            
               <Calendar
                 localizer={localizer}
                 events={events}
@@ -288,9 +288,7 @@ const MyCalendar = () => {
                 style={{ height: "100%" }}
                 eventPropGetter={eventPropGetter}
               />
-            ) : (
-              <p>No events available to show for this date.</p>
-            )}
+            
 
             {showModal && (
               <EditEventModel

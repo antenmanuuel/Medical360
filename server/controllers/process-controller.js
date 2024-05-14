@@ -71,6 +71,34 @@ async function addProcedure(req, res) {
     }
 }
 
+async function updateProcedure(req, res) {
+  try {
+      // Find the process by its ID
+      const { processId, procedureId } = req.params;
+      const update = req.body;
+      const process = await Process.findById(processId);
+
+      // Find the index of the procedure in the procedures array
+      const procedureIndex = process.procedures.findIndex(procedure => procedure._id.toString() === procedureId);
+
+      if (procedureIndex === -1) {
+          throw new Error('Procedure not found');
+      }
+
+      // Update the procedure with the provided update object
+      process.procedures[procedureIndex] = { ...process.procedures[procedureIndex], ...update };
+
+      // Save the updated process
+      await process.save();
+
+      res.status(200).json({ process, message: "Updated room" });
+  } catch (error) {
+      console.error('Error updating procedure:', error);
+      throw error; // Re-throw the error for handling by the caller
+  }
+}
+
+
 async function deleteProcedure(req, res) {
   try {
       const { processId, procedureId } = req.params;
@@ -149,7 +177,8 @@ const ProcessController = {
   getProcess,
   deleteProcess,
   addProcedure,
-  deleteProcedure
+  deleteProcedure,
+  updateProcedure
 };
 
 module.exports = ProcessController;
