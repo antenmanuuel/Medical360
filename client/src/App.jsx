@@ -42,6 +42,7 @@ import BugInfoPage from "./pages/BugInfoPage";
 import FeedbackInfoPage from "./pages/FeedbackInfoPage";
 import AllProcessesPage from "./pages/AllProcessesPage";
 import ProcessDetailsPage from "./pages/ProcessDetailsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 function App() {
 
@@ -75,6 +76,7 @@ function App() {
         <Route path="/new-equipment" element={user ? <NewEquipmentPage /> : <Navigate to="/" /> } />
         <Route path="/new-room" element={user ? <NewRoomPage /> : <Navigate to="/" /> } />
         <Route path="/new-patient" element={user ? <NewPatientPage /> : <Navigate to="/" /> } />
+        <Route path="/notifications" element={user ? <NotificationsPage /> : <Navigate to="/" /> } />
         <Route
           path="/resource-management"
           element={user ? <ResourceManagementPage /> : <Navigate to="/" /> }

@@ -43,6 +43,7 @@ async function login(req, res) {
         isAdmin: user.isAdmin,
         doctor: user.doctor,
         department: user.department,
+        notifications: user.notifications,
         id,
         token
       });

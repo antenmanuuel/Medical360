@@ -5,6 +5,11 @@ import autoprefixer from 'autoprefixer';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      external: ['@mui/material/styles']
+    }
+  },
   css: {
     postcss: {
       plugins: [

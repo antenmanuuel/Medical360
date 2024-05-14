@@ -91,7 +91,7 @@ const Sidebar = ({ onSelectChat }) => {
           <option value="">Select a User</option>
           {(users || []).map((user) => (
             <option key={user._id} value={user._id}>
-              {user.name} ({user["_id"]})
+              {user.name} 
             </option>
           ))}
         </select>

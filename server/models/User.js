@@ -38,10 +38,20 @@ const userSchema = new Schema({
   //   type: String,
   //   default: "pending",
   // },
+  notifications: {
+    type: [{
+        title: {type: String, required: true},
+        message: {type: String, required: true},
+        date: {type: Date, required: true, default: Date.now()},
+        read: {type: Boolean, required: true, default: false},
+        patient: {type: Schema.Types.ObjectId, ref: "Patient", default: null}
+    }],
+    default: []
+  },
   image: { 
     type: String,
     default: '' 
-},
+  },
 });
 
 const User = mongoose.model("User", userSchema);

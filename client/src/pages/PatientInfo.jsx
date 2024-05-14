@@ -11,6 +11,7 @@ import FileUpload from "../components/UploadFile";
 
 const PatientInfo = ({}) => {
   const {
+    id_to_department,
     updatePatient,
     removeCurrentDoctor,
     doctors,
@@ -20,19 +21,21 @@ const PatientInfo = ({}) => {
     currentDoctor,
     getDoctor,
     BASE_URL,
+    getPatient,
     updateEvent,
     getEvent,
     getDepartment,
-    getAllDepartments,
-    currentPatient
+    getAllDepartments
   } = useGlobalContext();
-  const { currentProcess, getProcess } = useProcessContext();
+  const { currentProcess, getProcess, updateProcess } = useProcessContext();
   const { user } = useAuthContext();
   const [modal, setModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const navigate = useNavigate();
+  const [currentPatient, setCurrentPatient] = useState(null);
+  const [events, setEvents] = useState(null);
   const [viewedDoctors, setViewedDoctors] = useState([]);
   const [doctorToRemove, setDoctorToRemove] = useState(null);
   const [removeModalOpen, setRemoveModalOpen] = useState(false);
@@ -54,24 +57,30 @@ const PatientInfo = ({}) => {
     async function fetchDoctors() {
       await getAllDoctors();
     }
-    const fetchPatientEvents = async () => {
-      try {
-        if (currentPatient.department) {
-          const department = await getDepartment(currentPatient.department);
-          setCurrentDepartment(department);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor events:", error);
-      }
-    };
-    if (currentPatient) fetchPatientEvents();
+    
     if (!departments) fetchDepartments();
     if (!doctors) fetchDoctors();
     if (currentPatient && !currentProcess && currentPatient.process) fetchProcess();
     if (currentPatient && currentPatient.doctorAssigned)
       fetchDoctor(currentPatient.doctorAssigned);
     else removeCurrentDoctor();
-  }, [currentPatient, departments, doctors]);
+  }, [doctors, currentPatient, departments]);
+  useEffect(() => {
+    const fetchPatientEvents = async () => {
+      try {
+        const patient = await getPatient(id);
+        setCurrentPatient(patient);
+
+        if (patient.department) {
+          const department = await getDepartment(patient.department);
+          setCurrentDepartment(department);
+        }
+      } catch (error) {
+        console.error("Error fetching doctor events:", error);
+      }
+    };
+    fetchPatientEvents();
+  }, [currentPatient]);
 
   const handleDoctorClick = (doctor) => {
     setSelectedDoctor(doctor);
@@ -164,12 +173,19 @@ const PatientInfo = ({}) => {
     }
   };
 
+  
+  
+
   const filteredDoctors =
     doctors && currentPatient && currentPatient.department
       ? doctors.filter(
           (doctor) => doctor.departmentName === currentPatient.department
         )
       : [];
+
+  if (!currentPatient) {
+    return <div>No patient data available.</div>;
+  }
 
   return (
     <>
@@ -422,12 +438,20 @@ const PatientInfo = ({}) => {
             {/* Row 5: Schedule Button */}
             <div className="flex justify-center mt-4">
               {currentPatient.patientStatus !== "discharged" ? (
-                <button
-                  className="bg-red-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-800"
-                  onClick={() => setModal(true)}
-                >
-                  Discharge Patient
-                </button>
+                <>
+                  <button
+                    className="bg-[#2260FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 mr-4"
+                    onClick={() => navigate("/add-procedure")}
+                  >
+                    Add Procedure
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-800"
+                    onClick={() => setModal(true)}
+                  >
+                    Discharge Patient
+                  </button>
+                </>
               ) : (
                 <div className="bg-red-500 text-white px-8 py-3 rounded-lg font-semibold">
                   This Patient has Been Discharged

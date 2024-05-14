@@ -38,7 +38,7 @@ const ProcedureListItem = ({ label, value }) => {
 
 const ProcessDetailsPage = () => {
     const { currentProcess, updateProcess, getProcess, deleteProcedure } = useProcessContext();
-    const { currentPatient, id_to_department } = useGlobalContext();
+    const { currentPatient, id_to_department, doctors, sendNotifications, getAllDepartments, departments, getAllDoctors } = useGlobalContext();
     const { user } = useAuthContext();
     const navigate = useNavigate();
 
@@ -46,8 +46,13 @@ const ProcessDetailsPage = () => {
       const fetchProcess = async () => {
         await getProcess(currentPatient.process);
       }
+      const fetchDepartments = async () => {
+        await getAllDepartments()
+        await getAllDoctors();
+      }
       fetchProcess();
-    }, [])
+      if (!departments) fetchDepartments();
+    }, [departments])
     
 
     const handleProcessComplete = async (processId) => {
@@ -77,26 +82,52 @@ const ProcessDetailsPage = () => {
         await getProcess(processId);
     };
 
-    const handleProcedureComplete = async (procedureId) => {
-        const updatedProcedures = currentProcess.procedures.map(procedure =>
-            procedure._id === procedureId ? { ...procedure, completed: true } : procedure
+    const handleProcedureComplete = async (procedure) => {
+        const updatedProcedures = currentProcess.procedures.map(proc =>
+            proc._id === procedure._id ? { ...proc, completed: true } : proc
         );
 
         await updateProcess(currentProcess._id, {
             procedures: updatedProcedures,
         });
+        
+        if (doctors) {
+            let userIds = doctors.filter(doc => {
+                return doc._id === procedure.doctor
+              }).map(doc => doc.userId);
+            sendNotifications([userIds], {
+                message: `A procedure that you're assigned to for patient ${currentPatient.patientName} has been compeleted`,
+                title: `Procedure completed for ${currentPatient.patientName}`,
+                date: Date.now(),
+                read: false,
+                patient: currentPatient._id,
+            })
+        }
         await getProcess(currentProcess._id);
     };
 
-    const handleProcedureNotComplete = async (procedureId) => {
-        const updatedProcedures = currentProcess.procedures.map(procedure =>
-            procedure._id === procedureId ? { ...procedure, completed: false } : procedure
+    const handleProcedureNotComplete = async (procedure) => {
+        const updatedProcedures = currentProcess.procedures.map(proc =>
+            proc._id === procedure._id ? { ...proc, completed: false } : proc
         );
 
         await updateProcess(currentProcess._id, {
             procedures: updatedProcedures,
             completed: false
         });
+        if (doctors) {
+            let userIds = doctors.filter(doc => {
+                return doc._id === procedure.doctor
+              }).map(doc => doc.userId);
+            console.log(userIds);
+            sendNotifications([userIds], {
+                message: `A procedure that you're assigned to for patient ${currentPatient.patientName} has been marked as uncompleted`,
+                title: `Procedure Uncompleted for ${currentPatient.patientName}`,
+                date: Date.now(),
+                read: false,
+                patient: currentPatient._id,
+            })
+        }
         await getProcess(currentProcess._id);
     };
 
@@ -184,7 +215,7 @@ const ProcessDetailsPage = () => {
                                     <>
                                         <Button
                                             variant="contained"
-                                            onClick={() => handleProcedureComplete(procedure._id)}
+                                            onClick={() => handleProcedureComplete(procedure)}
                                             sx={{ position: 'relative', backgroundColor: '#34c759', margin: "6px", '&:hover': {
                                                 backgroundColor: '#30a14e', // Change to the desired green color when hovering
                                             }}}
@@ -229,7 +260,7 @@ const ProcessDetailsPage = () => {
                                         <Button
                                             variant="contained"
                                             color="error"
-                                            onClick={() => handleProcedureNotComplete(procedure._id)}
+                                            onClick={() => handleProcedureNotComplete(procedure)}
                                             sx={{ position: 'relative' }}
                                         >
                                             Mark Procedure as Not Completed

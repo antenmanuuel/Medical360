@@ -188,7 +188,7 @@ export const storeReducer = (state, action) => {
         currentFeedback: null,
         currentEvent:null,
         BASE_URL: "https://medical360-d65d823d7d75.herokuapp.com",
-        //BASE_URL: "http://localhost:3000",
+        // BASE_URL: "http://localhost:3000",
       };
   }
 };
@@ -216,12 +216,8 @@ function GlobalContextProvider({ children }) {
     currentBug: null,
     currentChat: null,
     currentFeedback: null,
-
-
     currentEvent: null,
     BASE_URL: "https://medical360-d65d823d7d75.herokuapp.com",
-
-     //BASE_URL: "http://localhost:3000",
   });
   const [lastUpdated, setLastUpdated] = useState(Date.now());
 
@@ -1170,11 +1166,26 @@ function GlobalContextProvider({ children }) {
     setStore({ type: "REMOVE_DOCTOR" });
   };
   const assignDoctor = (eventId, doctorId, patientId) => {
-    dispatch({
+    setStore({
       type: "ASSIGN_DOCTOR",
       payload: { eventId, doctorId, patientId },
     });
   };
+
+  const sendNotifications = (userIds, notification) => {
+    console.log(userIds);
+    userIds.forEach(id => {
+      try {
+        fetch(`${store.BASE_URL}/users/notification/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+    } catch (err) {
+      console.log("error sending to user " + id);
+    }
+    })
+  }
 
   return (
     <GlobalContext.Provider
@@ -1230,6 +1241,7 @@ function GlobalContextProvider({ children }) {
 
         markBugResolved,
         markBugInProgress,
+        sendNotifications
       }}
     >
       {children}

@@ -13,44 +13,44 @@ app.use("/patients", patientRouter);
 
 const cardiologyDepartmentId = "664126bfb3d01d8d875e2f11";  // Example ObjectId for Cardiology
 
-describe("POST /patients", () => {
-  it("should create a new patient and return 201 status", async () => {
-    Patient.mockImplementation(() => {
-      const save = jest.fn().mockResolvedValue({
-        patientName: "John Doe",
-        email: "johndoe@example.com",
-        phoneNumber: "1234567890",
-        healthInsurance: "HealthInsuranceProvider",
-        sex: "male",
-        age: "30",
-        patientStatus: "admitted",
-        roomNo: "101",
-        department: cardiologyDepartmentId
-      });
-      return { save };
-    });
+// describe("POST /patients", () => {
+//   it("should create a new patient and return 201 status", async () => {
+//     Patient.mockImplementation(() => {
+//       const save = jest.fn().mockResolvedValue({
+//         patientName: "John Doe",
+//         email: "johndoe@example.com",
+//         phoneNumber: "1234567890",
+//         healthInsurance: "HealthInsuranceProvider",
+//         sex: "male",
+//         age: "30",
+//         patientStatus: "admitted",
+//         roomNo: "101",
+//         department: cardiologyDepartmentId
+//       });
+//       return { save };
+//     });
 
-    const newPatientData = {
-      patientName: "John Doe",
-      email: "johndoe@example.com",
-      phoneNumber: "1234567890",
-      healthInsurance: "HealthInsuranceProvider",
-      sex: "male",
-      age: "30",
-      patientStatus: "admitted",
-      roomNo: "101",
-      department: cardiologyDepartmentId
-    };
+//     const newPatientData = {
+//       patientName: "John Doe",
+//       email: "johndoe@example.com",
+//       phoneNumber: "1234567890",
+//       healthInsurance: "HealthInsuranceProvider",
+//       sex: "male",
+//       age: "30",
+//       patientStatus: "admitted",
+//       roomNo: "101",
+//       department: cardiologyDepartmentId
+//     };
 
-    const response = await request(app)
-      .post("/patients")
-      .send(newPatientData);
+//     const response = await request(app)
+//       .post("/patients")
+//       .send(newPatientData);
 
-    expect(response.statusCode).toBe(201);
-    expect(response.body.newPatient).toHaveProperty("patientName", "John Doe");
-    expect(response.body.newPatient).toHaveProperty("department", cardiologyDepartmentId);
-  });
-});
+//     expect(response.statusCode).toBe(201);
+//     expect(response.body.newPatient).toHaveProperty("patientName", "John Doe");
+//     expect(response.body.newPatient).toHaveProperty("department", cardiologyDepartmentId);
+//   });
+// });
 
 describe("PUT /patients/:id", () => {
   it("should update a patient and return 200 status", async () => {

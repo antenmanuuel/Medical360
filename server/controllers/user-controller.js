@@ -93,6 +93,92 @@ async function deleteUser(req, res) {
   }
 }
 
+async function postNotification(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    const notification = req.body
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.notifications.unshift(notification);
+    await user.save();
+    
+    res.status(200).json({
+      message: "posted notification",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+// get all notifications from user
+// Function to get a user by their ID
+async function getNotifications(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    let notifications = user.notifications
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+// get all notifications from user
+// Function to get a user by their ID
+async function deleteNotification(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    const notification = req.body;
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    user.notifications = user.notifications.filter(notif => {
+      return !notif._id.equals(notification._id);
+    });
+
+    await user.save();
+    res.status(200).json({ message: "deleted notification" });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+// get all notifications from user
+// Function to get a user by their ID
+async function updateNotification(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    const notification = req.body;
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    let index = user.notifications.findIndex(notif => notif._id.equals(notification._id));
+    user.notifications[index] = notification;
+    await user.save();
+    let notifications = user.notifications;
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
 async function uploadUserImage(req, res) {
   if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -125,6 +211,10 @@ const UserController = {
   getAllUsers,
   updateUser,
   deleteUser,
+  postNotification,
+  getNotifications,
+  deleteNotification,
+  updateNotification,
   uploadUserImage,
 };
 
