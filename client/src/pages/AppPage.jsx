@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Banner from "../components/Banner";
 import { Link } from "react-router-dom";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { useGlobalContext } from "../hooks/useGlobalContext";
 
 const AppPage = () => {
+  const { user } = useAuthContext();
+  const { reset } = useGlobalContext();
+
+  useEffect(() => {
+    reset();
+  }, [])
+
   return (
     <div className="flex flex-col h-screen">
       {/* Include the Banner component at the top */}
-      <Banner goBackPath="/" showGoBack={false} />
+      <Banner goBackPath="/" showGoBackButton={false} />
 
       {/* Main container for sidebar, welcome message, and content */}
       <div className="flex flex-grow">
@@ -25,23 +34,18 @@ const AppPage = () => {
 
           {/* Short message */}
           <p className="text-lg text-center text-gray-600 mb-3">
-          Your one-stop solution for medical management.
+            Your one-stop solution for medical management.
           </p>
 
           {/* Buttons related to Medical360 with spacing */}
           <div className="flex justify-between">
-            <Link to="/all-doctors" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-4">
-             View All Doctors
+            <Link
+              to="/all-doctors"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-4"
+            >
+              View All Doctors
             </Link>
-            <Link to="/unscheduled" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-4">
-             View Available Doctors
-            </Link>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-              Button 3
-            </button>
           </div>
-
-          {/* Your content goes here */}
         </div>
       </div>
     </div>

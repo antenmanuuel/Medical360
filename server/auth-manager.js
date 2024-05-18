@@ -3,7 +3,7 @@ require("dotenv").config()
 
 function authManager() {
 
-    verifyUser = (req) => {
+    userVerify = (req) => {
         try {
             const token = req.cookies.token;
             if (!token) {
@@ -17,7 +17,7 @@ function authManager() {
         }
     }
 
-    signToken = (userId) => {
+    tokenSign = (userId) => {
         return jwt.sign({
             userId: userId
         }, process.env.JWT_SECRET);

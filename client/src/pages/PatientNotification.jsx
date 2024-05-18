@@ -33,7 +33,6 @@ const PatientNotification = () => {
           buttonName="Confirm"
         />
         <div className="flex justify-center space-x-4 mt-4">
-          {/* Assuming the "Confirm" button is part of the FormField, you might need to move it here if you want them side by side outside of the FormField */}
           <button
             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
             onClick={handleReject}

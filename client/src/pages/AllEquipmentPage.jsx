@@ -1,52 +1,57 @@
-import React from 'react';
-import Banner from '../components/Banner';
-import Table from '../components/Table';
-import SearchBar from '../components/SearchBar';
-import AuthContext from '../auth/AuthContext';
-import Button from '../components/Button';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import Banner from "../components/Banner";
+import Table from "../components/Table";
+import SearchBar from "../components/SearchBar";
+import { Link } from "react-router-dom";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { useGlobalContext } from "../hooks/useGlobalContext";
 
 const AllEquipmentPage = () => {
-  // Hardcoded data for the list of equipment
-  const equipmentData = [
-    {
-      Name: 'MRI Machine',
-      Type: 'Imaging',
-      Quantity: '2',
-      Location: 'Radiology Dept',
-      'Maintenance Status': 'Operational',
-      'More Info': 'Info',
-    },
-    {
-      Name: 'CT Scanner',
-      Type: 'Imaging',
-      Quantity: '1',
-      Location: 'Radiology Dept',
-      'Maintenance Status': 'Maintenance Required',
-      'More Info': 'Info',
-    },
-    {
-      Name: 'X-Ray Machine',
-      Type: 'Imaging',
-      Quantity: '3',
-      Location: 'Emergency Dept',
-      'Maintenance Status': 'Operational',
-      'More Info': 'Info',
-    },
-    // Add more equipment items as needed
-  ];
+  const { user } = useAuthContext();
+  const { equipments, getAllEquipments } = useGlobalContext();
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const fetchEquipments = async () => {
+      if (!equipments)
+        await getAllEquipments();
+    };
+
+    fetchEquipments();
+  }, [equipments]);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term.toLowerCase());
+  };
 
   return (
     <>
-      <Banner goBackPath="/" />
-      <div className="flex justify-center">
-        <div className="text-blue-500 p-4 m-4 rounded-lg text-3xl">
+      <Banner goBackPath="/resource-management" />
+      <div className="flex justify-center my-4">
+        <div className="text-blue-500 p-4 rounded-lg text-3xl">
           All Equipment
         </div>
       </div>
-      <SearchBar />
+      <div className="flex justify-between items-center mx-8 mb-4">
+        <SearchBar onSearch={handleSearch} />
+        {user && user.isAdmin && (
+          <Link
+            to={"/new-equipment"}
+            className="bg-[#2260FF] text-white px-2 py-1 rounded-md font-medium text-xl"
+          >
+            New Equipment
+          </Link>
+        )}
+      </div>
       <div className="p-8">
-        <Table cards={equipmentData} isAdmin={false} />
+        {equipments && <Table
+          cards={equipments.filter((equipment) =>
+            equipment.equipmentName.toLowerCase().includes(searchTerm)
+          )}
+          isAdmin={user && user.isAdmin}
+          context={"equipment"}
+        />}
       </div>
     </>
   );

@@ -1,73 +1,128 @@
-import React from 'react';
-import Banner from '../components/Banner';
+import React, { useState, useEffect } from "react";
+import Banner from "../components/Banner";
+import ChatArea from "../components/ChatArea";
+import axios from "axios";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { useGlobalContext } from "../hooks/useGlobalContext";
 
 const ChatPage = () => {
+  const [selectedChatId, setSelectedChatId] = useState(null);
+
   return (
-    <div>
-      {/* Include the Banner component */}
+    <div className="min-h-screen bg-gray-100">
       <Banner goBackPath={"/apppage"} />
-
-      {/* Sidebar and ChatArea components */}
-      <div className="flex h-screen" style={{ backgroundColor: '#CAD6FF' }}>
-        <Sidebar />
-        <ChatArea />
+      <div className="text-2xl font-semibold text-center py-4 mb-4 bg-white shadow">
+        Chat
+      </div>
+      <div className="flex h-full">
+        <Sidebar onSelectChat={setSelectedChatId} />
+        <ChatArea chatId={selectedChatId} />
       </div>
     </div>
   );
 };
 
-// Sidebar component remains unchanged
-const Sidebar = () => {
-  // For demonstration purposes, static groups and people are used
-  const groups = ['Cardiology', 'Nurses', 'Nurse Ashe, Dr. Bob'];
-  const people = ['Peter', 'Unknown', 'Mary'];
+const Sidebar = ({ onSelectChat }) => {
+  const [userId, setUserId] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [chats, setChats] = useState([]); // Default to an empty array
+  const [curUser, setCurUser] = useState(null);
+  const { user } = useAuthContext();
+  const { users, getUser, getAllUsers, getUserChats, BASE_URL } = useGlobalContext();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (user && user.id) {
+        const fetchedUser = await getUser(user.id);
+        setCurUser(fetchedUser);
+        const userChats = await getUserChats(user["id"]);
+
+        setChats(userChats || []); // Ensure userChats is an array, default to empty array if falsy
+      } else {
+        console.log("User data is not available.");
+      }
+    };
+    fetchUser();
+  }, [user]);
+
+  useEffect(() => {
+    getAllUsers().catch((error) =>
+      console.error("Error fetching users:", error)
+    );
+  }, []); // Only on component mount
+
+  const handleUserChange = async (e) => {
+    let newUserId = e.target.value;
+    setUserId(newUserId); // Update the user ID
+    if (newUserId) {
+      const userDetails = await getUser(newUserId); // Fetch the user details based on ID
+      setSelectedUser(userDetails); // Store the user details
+    } else {
+      setSelectedUser(null); // Reset if no user is selected
+    }
+  };
+
+  const handleCreateChat = async () => {
+    if (userId && selectedUser) {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/chat`,
+          {
+            members: [curUser, selectedUser],
+          }
+        );
+        setChats((prevChats) => [...prevChats, response.data]); // Use prevChats to ensure correct state updates
+        setUserId("");
+        setSelectedUser(null); // Clear the selected user after creating the chat
+      } catch (error) {
+        console.error("Failed to create chat:", error);
+      }
+    }
+  };
 
   return (
-    <div className="w-1/4  p-5 border-r overflow-y-auto" style={{ backgroundColor: '#CAD6FF' }}>
-      <div className="p-2">
-        <input className="w-full p-2 rounded border" placeholder="Search" />
+    <div className="w-1/4 bg-white p-5 overflow-y-auto shadow-lg space-y-4">
+      <div>
+        <select
+          className="form-select block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 rounded-md shadow-sm"
+          value={userId}
+          onChange={handleUserChange}
+        >
+          <option value="">Select a User</option>
+          {(users || []).map((user) => (
+            <option key={user._id} value={user._id}>
+              {user.name} 
+            </option>
+          ))}
+        </select>
       </div>
-      <div className="mt-4 bg-white">
-        <h3 className="font-bold text-lg">Groups</h3>
-        {groups.map((group, index) => (
-          <div key={index} className="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded">
-            <div className="rounded-full h-6 w-6 bg-blue-500 flex items-center justify-center text-white text-sm">
-              {group[0]}
+      <button
+        onClick={handleCreateChat}
+        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Create Chat
+      </button>
+      <button
+        onClick={() => getAllUsers()}
+        className="w-full bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Refresh List
+      </button>
+      <div>
+        <h3 className="text-lg font-semibold">Active Chats</h3>
+        {Array.isArray(chats) && chats.length > 0 ? (
+          chats.map((chat, index) => (
+            <div
+              onClick={() => onSelectChat(chat._id)}
+              key={index}
+              className="p-2 my-1 hover:bg-blue-100 cursor-pointer rounded shadow"
+            >
+              {chat.members.map((member) => member["name"]).join(", ")}
             </div>
-            <p className="ml-2">{group}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 bg-white">
-        <h3 className="font-bold text-lg">People</h3>
-        {people.map((person, index) => (
-          <div key={index} className="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded">
-            <div className="rounded-full h-6 w-6 bg-blue-500 flex items-center justify-center text-white text-sm">
-              {person[0]}
-            </div>
-            <p className="ml-2">{person}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// ChatArea component remains unchanged
-const ChatArea = () => {
-  return (
-    <div className="w-3/4 flex flex-col">
-      <div className="p-5 border-b flex items-center">
-        <div className="rounded-full h-8 w-8 bg-blue-500 flex items-center justify-center text-white text-sm">P</div>
-        <h2 className="ml-2">Peter</h2>
-      </div>
-      <div className="flex-1 p-5 overflow-y-auto">
-        {/* Messages will be dynamic, but here are static examples */}
-        <div className="rounded px-4 py-2 bg-blue-100 max-w-xs mb-2">Hey There!</div>
-        <div className="rounded px-4 py-2 bg-blue-300 max-w-xs mb-2 self-end">Hello!</div>
-      </div>
-      <div className="p-4 border-t">
-        <input className="w-full p-2 rounded border" placeholder="Type your message here..." />
+          ))
+        ) : (
+          <div className="text-gray-500">No chats available</div>
+        )}
       </div>
     </div>
   );
