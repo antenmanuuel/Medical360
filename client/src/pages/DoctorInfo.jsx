@@ -1,19 +1,148 @@
-import React, { useContext } from "react";
-import AuthContext from "../auth/AuthContext";
+import React, { useContext, useState, useEffect } from "react";
 import Banner from "../components/Banner";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useGlobalContext } from "../hooks/useGlobalContext";
+import MyCalendar from "./MyCalendar";
 
-//doctor should be an object
-const DoctorInfo = (
-  {
-    /*doctor*/
+const DoctorInfo = () => {
+  const { doctorId } = useParams();
+  const location = useLocation();
+  const [doctor, setDoctor] = useState(null);
+  const [department, setDepartment] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const { getDoctor, getDepartment, getDoctorByUser, getEvents,getUser,BASE_URL} =
+    useGlobalContext();
+
+  const initialAverageTimes = {
+    Sunday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Monday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Tuesday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Wednesday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Thursday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Friday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+    Saturday: { averageStartTime: "N/A", averageEndTime: "N/A" },
+  };
+  const [averageTimesByDay, setAverageTimesByDay] =
+    useState(initialAverageTimes);
+
+  const getDayOfWeek = (date) => {
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    return days[new Date(date).getDay()];
+  };
+
+  const getAverageTimesByDay = (events) => {
+    const daysOfWeek = {
+      Sunday: [],
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Saturday: [],
+    };
+
+    events.forEach((event) => {
+      const day = getDayOfWeek(event.start);
+      const startMinutes =
+        new Date(event.start).getHours() * 60 +
+        new Date(event.start).getMinutes();
+      const endMinutes =
+        new Date(event.end).getHours() * 60 + new Date(event.end).getMinutes();
+      daysOfWeek[day].push({ startMinutes, endMinutes });
+    });
+
+    const averageTimes = {};
+    Object.keys(daysOfWeek).forEach((day) => {
+      if (daysOfWeek[day].length > 0) {
+        const total = daysOfWeek[day].reduce(
+          (acc, curr) => ({
+            totalStart: acc.totalStart + curr.startMinutes,
+            totalEnd: acc.totalEnd + curr.endMinutes,
+          }),
+          { totalStart: 0, totalEnd: 0 }
+        );
+
+        const count = daysOfWeek[day].length;
+        const averageStart = formatTime(Math.round(total.totalStart / count));
+        const averageEnd = formatTime(Math.round(total.totalEnd / count));
+        averageTimes[day] = {
+          averageStartTime: averageStart,
+          averageEndTime: averageEnd,
+        };
+      } else {
+        averageTimes[day] = { averageStartTime: "N/A", averageEndTime: "N/A" };
+      }
+    });
+
+    return averageTimes;
+  };
+
+  const formatTime = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const suffix = hours >= 12 ? "PM" : "AM";
+    const formattedHour = hours % 12 === 0 ? 12 : hours % 12;
+    return `${formattedHour}:${mins < 10 ? "0" : ""}${mins} ${suffix}`;
+  };
+
+  useEffect(() => {
+    const fetchDoctorDetails = async () => {
+      try {
+        const doc = await getDoctor(doctorId);
+        if (doc) {
+          setDoctor(doc);
+          const dept = await getDepartment(doc.departmentName);
+          setDepartment(dept.departmentName);
+          const userData = await getDoctorByUser(doctorId);
+          setUserId(userData._id);
+          const userDatawithImage = await getUser(userData._id);
+          setUser(userDatawithImage);
+          console.log(`Image URL: ${BASE_URL}/${userDatawithImage.image}`);
+          setImagePreview(`${BASE_URL}/${userDatawithImage.image}`);
+
+         
+
+          const events = await getEvents(userData._id);
+
+          const averageTimesByDayUpdated = getAverageTimesByDay(events);
+          setAverageTimesByDay(averageTimesByDayUpdated);
+        }
+      } catch (error) {
+        console.error("Failed to fetch doctor or department details", error);
+      }
+    };
+
+    if (doctorId) {
+      fetchDoctorDetails();
+    }
+  }, [doctorId]);
+ 
+  
+  
+  if (!doctor) {
+    return <p>Loading...</p>;
   }
-) => {
-  const { auth } = useContext(AuthContext);
-  const doctor = auth.doctors[0];
+  const hasValidSchedule = Object.values(averageTimesByDay).some(
+    times => times.averageStartTime !== 'N/A' || times.averageEndTime !== 'N/A'
+  );
+  const doctorName = location.state?.doctorName;
+  const { patientId, patientName } = location.state || {};
+  const previousPage = location.state?.origin || "/apppage";
+ 
   return (
     <>
-      <Banner goBackPath={"/apppage"} />
+      <Banner goBackPath={previousPage} showGoBackButton={true} />
       <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="bg-[#CAD6FF] p-8 rounded-lg shadow-lg max-w-5xl w-full min-h-[600px]">
           {/* Row 1: Image and Details */}
@@ -23,8 +152,8 @@ const DoctorInfo = (
               style={{ width: "200px", height: "200px" }}
             >
               <img
-                src={doctor.image}
-                alt={doctor.name}
+                src={imagePreview}
+                alt={doctorName}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -36,7 +165,9 @@ const DoctorInfo = (
 
               <div className="bg-[#2260FF] text-white p-4 rounded-lg">
                 <h3 className="font-semibold text-md">Focus</h3>
-                <p>{doctor.focus}</p>
+                <p>{doctor.profileDetails?.focusAreas?.join(", ")}</p>
+                <h3 className="font-semibold text-md">Specialization</h3>
+                <p>{doctor.profileDetails?.specialization?.join(", ")}</p>
               </div>
             </div>
           </div>
@@ -45,9 +176,11 @@ const DoctorInfo = (
           <div className="flex justify-center items-center bg-white p-4 rounded-lg mt-4">
             <div>
               <h2 className="text-xl font-semibold text-center text-[#2260FF]">
-                {doctor.name}
+                {doctorName}
               </h2>
-              <p className="text-center ">{doctor.department}</p>
+              <p className="text-center">
+                {department ? department : "Loading department..."}
+              </p>
             </div>
           </div>
 
@@ -65,19 +198,47 @@ const DoctorInfo = (
               </svg>
               <h3 className="text-lg text-[#2260FF]">Schedule</h3>
             </div>
-            <p className="text-center w-full">{doctor.schedule}</p>
+
+            {hasValidSchedule ? (
+              <div>
+                {Object.entries(averageTimesByDay).map(([day, times]) => {
+                  if (times.averageStartTime !== 'N/A' || times.averageEndTime !== 'N/A') {
+                    return (
+                      <div key={day}>
+                        <p><b>{day}</b>: {times.averageStartTime} to {times.averageEndTime}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ) : (
+              <p>No schedule available to show.</p>
+            )}
           </div>
 
           {/* Row 4: Profile */}
           <div className="bg-white p-4 rounded-lg mt-4">
             <h3 className="text-[#2260FF] font-semibold text-lg">Profile</h3>
-            <p className="text-gray-600">{doctor.profile}</p>
+            <p className="text-gray-600">{doctor.profileDetails.biography}</p>
           </div>
 
           {/* Row 5: Schedule Button */}
+          {/* {!showCalendar ? (
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => setShowCalendar(true)} // Toggle calendar on button click
+                className="bg-[#2260FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800"
+              >
+                Schedule
+              </button>
+            </div>
+          ) : (
+            <MyCalendar userId={userId} /> // Pass userId to MyCalendar
+          )} */}
           <div className="flex justify-center mt-4">
             <Link
-              to="/book-appointment"
+              to={`/doctor-schedule/${userId}`}
               className="bg-[#2260FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800"
             >
               Schedule
