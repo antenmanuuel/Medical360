@@ -41,18 +41,17 @@ const AllProcessesPage = () => {
     return (
         <>
             <Banner goBackPath={"/apppage"} />
-            <Container maxWidth="lg" className="mx-auto mt-8">
-                <Typography variant="h3" className="text-3xl font-semibold mb-8 text-blue-600">All Processes</Typography>
+            <Container maxWidth="lg" className="mx-auto mt-8 mb-8">
+                <Typography variant="h3" className="text-3xl font-semibold pb-5 text-blue-600">All Processes</Typography>
                 <TextField
                     variant="outlined"
                     label="Search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     fullWidth
-                    className="mb-4"
                     inputProps={{ 'aria-label': 'Search' }}
                 />
-                <Grid container spacing={3}>
+                <Grid container spacing={3} className="pt-10">
                     {currentProcesses && currentProcesses.map(process => (
                         <Grid item key={process._id} xs={12} sm={6} md={4} lg={3}>
                             <div className="bg-blue-100 border border-blue-400 text-blue-900 p-4 rounded-lg hover:bg-blue-500" onClick={() => handleClick(process.patient)}>
@@ -65,7 +64,7 @@ const AllProcessesPage = () => {
                     count={Math.ceil(filteredProcesses && filteredProcesses.length / perPage)}
                     page={page}
                     onChange={handleChangePage}
-                    className="mt-4"
+                    className="mt-10"
                 />
             </Container>
         </>
