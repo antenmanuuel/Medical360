@@ -62,3 +62,23 @@ A modern web-based hospital management system designed to manage patients, docto
    ```bash
    git clone https://github.com/your-username/hospital-management-system.git
    cd hospital-management-system
+   ```
+#### 2. **Go the the client folder and install packages**
+   ```bash
+   cd client && npm install
+   ```
+#### 3. **Go to the server folder and install package**
+   ```bash
+   cd server && npm install
+   ```
+#### 4. **Start the server**
+   ```bash
+    npm start
+   ```
+
+#### 5. **Start the client**
+   ```bash
+    cd .. && cd client && npm run dev
+   ```
+
+
