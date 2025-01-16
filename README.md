@@ -51,7 +51,7 @@ A modern web-based hospital management system designed to manage patients, docto
 
 ### Prerequisites
 - **Node.js** (v14 or later)
-- **MongoDB** (local or cloud instance)
+- **MongoDB** (cloud instance)
 - **npm** or **yarn**
 
 ---
