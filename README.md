@@ -51,6 +51,11 @@ A modern web-based hospital management system designed to manage patients, docto
 - **Email**:admin@example.com
 - **Password**:admin@123
 
+Other Credentials
+- **Email**:agasul@muhuhe.sx
+- **Password**:password@123
+
+
 
 ---
 
