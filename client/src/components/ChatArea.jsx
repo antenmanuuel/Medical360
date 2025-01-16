@@ -4,8 +4,7 @@ import { useGlobalContext } from "../hooks/useGlobalContext";
 import { useAuthContext } from "../hooks/useAuthContext";
 
 
-const socket = io("https://medical360-d65d823d7d75.herokuapp.com");
- //const socket =io("http://localhost:5173")
+ const socket =io("http://localhost:5173")
 
 const ChatArea = ({ chatId }) => {
   const [messages, setMessages] = useState([]);

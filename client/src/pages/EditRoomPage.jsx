@@ -30,7 +30,7 @@ const EditRoomPage = () => {
           <Banner goBackPath={"/all-rooms"} />
           <div className="flex justify-center">
               <div className='mb-5'>
-              <h1 className="text-3xl font-bold text-blue-500">Edit Room</h1>
+              <h1 className="text-3xl font-bold text-blue-500 mt-20">Edit Room</h1>
               </div>
           </div>
           {currentRoom && <FormField

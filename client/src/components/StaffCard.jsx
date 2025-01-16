@@ -1,24 +1,21 @@
-
-import React,{useState,useEffect} from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useGlobalContext } from "../hooks/useGlobalContext";
-const StaffCard = ({ staff,headDoctor,origin }) => {
+
+const StaffCard = ({ staff, headDoctor, origin }) => {
   const [user, setUser] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const {getDoctorByUser, getEvents,getUser,BASE_URL} =
-    useGlobalContext();
+  const [imagePreview, setImagePreview] = useState("");
+  const { getDoctorByUser, getUser, BASE_URL } = useGlobalContext();
+
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       try {
-          
-          const userData = await getDoctorByUser(staff._id);
-          const userDatawithImage = await getUser(userData._id);
-          setUser(userDatawithImage);
-          console.log(`Image URL: ${BASE_URL}/${userDatawithImage.image}`);
-          setImagePreview(`${BASE_URL}/${userDatawithImage.image}`);
-        
+        const userData = await getDoctorByUser(staff._id);
+        const userDataWithImage = await getUser(userData._id);
+        setUser(userDataWithImage);
+        setImagePreview(`${BASE_URL}/${userDataWithImage.image}`);
       } catch (error) {
-        console.error("Failed to fetch doctor or department details", error);
+        console.error("Failed to fetch doctor details", error);
       }
     };
 
@@ -26,38 +23,42 @@ const StaffCard = ({ staff,headDoctor,origin }) => {
       fetchDoctorDetails();
     }
   }, [staff._id]);
- 
+
   return (
-    <div className="bg-[#CAD6FF] p-4 rounded-lg shadow-lg max-w-xs mx-auto">
-      {/* Image and Name */}
+    <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-2 duration-300">
+      {/* Image */}
       <div className="flex flex-col items-center">
-        <div className="flex-none rounded-full overflow-hidden border-4 border-white shadow-lg mb-4"
-             style={{ width: '120px', height: '120px' }}>
+        <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-blue-600 shadow-lg">
           <img
-            src={imagePreview}  // Add default image path
-            alt={staff.name || 'Doctor Name'}
+            src={imagePreview || "https://via.placeholder.com/120"}
+            alt={staff.name || "Doctor"}
             className="w-full h-full object-cover"
           />
         </div>
-        <h2 className="text-xl font-semibold text-center text-[#2260FF]">
-          {staff.name || 'Unknown Name'}
-        </h2>
-        {headDoctor? <p><b>Department Head</b></p> : <p><b>Doctor</b></p>}
-        <p className="text-center">{staff.profileDetails?.focusAreas?.join(', ')}</p>
+        {/* Name */}
+        <h3 className="mt-4 text-xl font-bold text-blue-800">
+          {staff.name || "Unknown Name"}
+        </h3>
+        <p className="text-md text-blue-600 font-semibold">
+          {headDoctor ? "Department Head" : "Doctor"}
+        </p>
       </div>
 
-      {/* Bio */}
-      <div className="bg-white p-2 rounded-lg mt-4 text-center">
-        <p className="text-gray-600 text-sm">{staff.profileDetails?.specialization?.join(', ')}</p>
+      {/* Specialization */}
+      <div className="mt-6 bg-blue-50 p-4 rounded-lg text-center shadow-sm">
+        <p className="text-md text-blue-800 font-medium">
+          {staff.profileDetails?.specialization?.join(", ") || "No specialization"}
+        </p>
       </div>
 
-      
       {/* Info Button */}
-      <div className="flex justify-center mt-4">
-      <Link
-    to={`/doctorinfo/${staff._id}`}
-    state={{ doctorName: staff.name, origin }} className="bg-[#2260FF] text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 text-sm">
-          Info
+      <div className="mt-6 flex justify-center">
+        <Link
+          to={`/doctorinfo/${staff._id}`}
+          state={{ doctorName: staff.name, origin }}
+          className="px-6 py-3 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 shadow-lg transition-transform transform hover:scale-105 duration-300"
+        >
+          View Info
         </Link>
       </div>
     </div>

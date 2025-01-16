@@ -9,11 +9,11 @@ const Patient = require("./models/Patient");
 const Room = require("./models/Room");
 const Equipment = require("./models/Equipment");
 const Process = require("./models/Process");
-const Event=require("./models/Event")
+const Event = require("./models/Event")
 require("dotenv").config();
 
 mongoose.connect(
-   "mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360",
+  "mongodb+srv://medical360:admin123@medical360.wh0h2hw.mongodb.net/medical360",
   // "mongodb://127.0.0.1/medical360",
   {
     useUnifiedTopology: true,
@@ -36,28 +36,28 @@ db.once("open", async () => {
       "Emergency Medicine",
       "Oncology",
       "Geriatric Care"
-  ];
-  const specializations = [
-    "Heart Surgery",
-    "Childhood Vaccination",
-    "Brain Surgery",
-    "Joint Replacement",
-    "Skin Care",
-    "Trauma Handling",
-    "Cancer Treatment",
-    "Elderly Health Management"
-];
-const departmentImages = [
-  'uploads/1713501063308.jpeg',
-  'uploads/0f15da26e3350ed5a80c14aad307ee0b1714706553010.png',
-  'uploads/c2214eed351287c24fed511db04b25ca1714705389299.jpeg'
-];
+    ];
+    const specializations = [
+      "Heart Surgery",
+      "Childhood Vaccination",
+      "Brain Surgery",
+      "Joint Replacement",
+      "Skin Care",
+      "Trauma Handling",
+      "Cancer Treatment",
+      "Elderly Health Management"
+    ];
+    const departmentImages = [
+      'uploads/1713501063308.jpeg',
+      'uploads/0f15da26e3350ed5a80c14aad307ee0b1714706553010.png',
+      'uploads/c2214eed351287c24fed511db04b25ca1714705389299.jpeg'
+    ];
 
-const userImages = [
-  'user_images/6e9a2ccf771b1453b865754dbe8934241715645972218.jpeg',
-  'user_images/a9ecfdf770031305021ac7c442d320121715645773645.jpeg',
-  'user_images/PatientImage.png'
-];
+    const userImages = [
+      'user_images/6e9a2ccf771b1453b865754dbe8934241715645972218.jpeg',
+      'user_images/a9ecfdf770031305021ac7c442d320121715645773645.jpeg',
+      'user_images/PatientImage.png'
+    ];
     // Create admin user
     const adminUser = new User({
       name: "Admin",
@@ -89,20 +89,20 @@ const userImages = [
       await user.save();
       const doctor = new Doctor({
         name: name,
-        surgeryCount: chance.integer({min: 0, max: 1000}),
-        appointmentNo: chance.integer({min: 1000, max: 9999}),
-        hours: chance.integer({min: 20, max: 60}),
-        experience: `${chance.integer({min: 1, max: 40})} years`,
+        surgeryCount: chance.integer({ min: 0, max: 1000 }),
+        appointmentNo: chance.integer({ min: 1000, max: 9999 }),
+        hours: chance.integer({ min: 20, max: 60 }),
+        experience: `${chance.integer({ min: 1, max: 40 })} years`,
         name: name,
         surgeryCount: chance.integer(),
         appointmentNo: chance.integer(),
         hours: chance.integer(),
         profileDetails: {
-          focusAreas: [chance.pickone(focusAreas), 
-            chance.pickone(focusAreas)],
-          specialization: [chance.pickone(specializations), 
-            chance.pickone(specializations)],
-            biography: "Completed medical degree at a renowned university, further specialized during residency with emphasis on patient-centered care.",
+          focusAreas: [chance.pickone(focusAreas),
+          chance.pickone(focusAreas)],
+          specialization: [chance.pickone(specializations),
+          chance.pickone(specializations)],
+          biography: "Completed medical degree at a renowned university, further specialized during residency with emphasis on patient-centered care.",
         },
         schedule: [
           { day: "Monday", start: chance.date(), end: chance.date() },
@@ -110,9 +110,9 @@ const userImages = [
         ],
         patientList: [],
         userId: user._id
-        
+
       });
-      
+
       await doctor.save();
       user.doctor = doctor._id;
       await user.save();
@@ -121,15 +121,15 @@ const userImages = [
         departmentName: departments[i],
         head: doctor._id, // Head can be added later
         headModel: departments[i],
-        doctorList:[],
-        iconPath:chance.pickone(departmentImages),
+        doctorList: [],
+        iconPath: chance.pickone(departmentImages),
       });
 
       await dep.save();
 
       department_ids.push(dep._id);
 
-      
+
       // update user and doctor with department
       await User.findOneAndUpdate({ _id: user._id }, { department: dep._id });
 
@@ -145,7 +145,7 @@ const userImages = [
     const events = [];
     for (let i = 0; i < 30; i++) {
       const name = chance.name();
-      const departmentId = chance.pickone(department_ids); 
+      const departmentId = chance.pickone(department_ids);
       const email = chance.email();
       const passwordHash = await bcrypt.hash("password@123", 10);
       const isAdmin = false;
@@ -155,22 +155,22 @@ const userImages = [
         phone_number: chance.phone(),
         passwordHash,
         isAdmin,
-        department:departmentId, // Set department reference
+        department: departmentId, // Set department reference
         image: chance.pickone(userImages)
       });
       const doctor = new Doctor({
         name: name,
         departmentName: departmentId,
-        surgeryCount: chance.integer({min: 0, max: 1000}),
-        appointmentNo: chance.integer({min: 1000, max: 9999}),
-        hours: chance.integer({min: 20, max: 60}),
-        experience: `${chance.integer({min: 1, max: 40})} years`,
+        surgeryCount: chance.integer({ min: 0, max: 1000 }),
+        appointmentNo: chance.integer({ min: 1000, max: 9999 }),
+        hours: chance.integer({ min: 20, max: 60 }),
+        experience: `${chance.integer({ min: 1, max: 40 })} years`,
         profileDetails: {
-          focusAreas: [chance.pickone(focusAreas), 
-            chance.pickone(focusAreas)],
-          specialization: [chance.pickone(specializations), 
-            chance.pickone(specializations)],
-            biography: "Completed medical degree at a renowned university, further specialized during residency with emphasis on patient-centered care.",
+          focusAreas: [chance.pickone(focusAreas),
+          chance.pickone(focusAreas)],
+          specialization: [chance.pickone(specializations),
+          chance.pickone(specializations)],
+          biography: "Completed medical degree at a renowned university, further specialized during residency with emphasis on patient-centered care.",
         },
         schedule: [
           { day: "Monday", start: chance.date(), end: chance.date() },
@@ -181,43 +181,43 @@ const userImages = [
       });
       doctor.userId = user._id;
 
-  // Assign the doctor to the user
-  user.doctor = doctor._id;
+      // Assign the doctor to the user
+      user.doctor = doctor._id;
 
-  // Push the instances into their respective arrays
-  users.push(user);
-  doctors.push(doctor);
+      // Push the instances into their respective arrays
+      users.push(user);
+      doctors.push(doctor);
       const departmentDoc = await Department.findById(departmentId);
-  if (departmentDoc) {
-    departmentDoc.doctorList.push(doctor._id);
-    await departmentDoc.save();
-  }
-  for (let j = 0; j < 25; j++) {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + chance.integer({ min: 1, max: 30 }));
-    const endDate = new Date(startDate);
-    endDate.setHours(startDate.getHours() + chance.integer({ min: 1, max: 4 }));
+      if (departmentDoc) {
+        departmentDoc.doctorList.push(doctor._id);
+        await departmentDoc.save();
+      }
+      for (let j = 0; j < 25; j++) {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() + chance.integer({ min: 1, max: 30 }));
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + chance.integer({ min: 1, max: 4 }));
 
-   
-    const isAvailable = chance.bool(); 
-    const title = isAvailable ? "Available" : "Unavailable";
-    const status = isAvailable ? "available" : "unavailable";
 
-    const event = new Event({
-      title: title,
-      start: startDate,
-      end: endDate,
-      status: status,
-      user: user._id,
-    });
+        const isAvailable = chance.bool();
+        const title = isAvailable ? "Available" : "Unavailable";
+        const status = isAvailable ? "available" : "unavailable";
 
-    events.push(event);
-}
+        const event = new Event({
+          title: title,
+          start: startDate,
+          end: endDate,
+          status: status,
+          user: user._id,
+        });
 
-  
+        events.push(event);
+      }
+
+
 
     }
-    
+
     await User.insertMany(users);
     await Doctor.insertMany(doctors);
     await Event.insertMany(events);
@@ -265,9 +265,9 @@ const userImages = [
           "admitted",
           "under observation",
         ]),
-        roomNo: chance.integer({ min: 100, max: 200 }),  
+        roomNo: chance.integer({ min: 100, max: 200 }),
       });
-  
+
       // add doctor to patients assigned doctor
       // let departmentDoctors = allDoctors.filter(doc => {
       //   return doc.departmentName.equals(patient.department);
@@ -292,9 +292,9 @@ const userImages = [
         const doctor = allDoctors.find((doc) => doc.userId.equals(event.user));
         return doctor && doctor.departmentName.equals(patient.department);
       });
-      
-      
-      
+
+
+
 
       patients.push(patient);
 

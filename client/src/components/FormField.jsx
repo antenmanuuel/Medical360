@@ -1,67 +1,63 @@
-
-import React, { useState } from 'react';
-import TextField from './TextField';
-import MultiSelectField from './MultiSelectField';
+import React, { useState } from "react";
+import TextField from "./TextField";
+import MultiSelectField from "./MultiSelectField";
 
 const FormField = ({ fields, submit, buttonName }) => {
-    console.log(fields);
-    const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({});
 
-    const handleInputChange = (name, value) => {
-        setFormData({ ...formData, [name]: value });
-    };
+  const handleInputChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log('Form data:', formData);
-        submit(formData);
-    };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    submit(formData);
+  };
 
-    return (
-        <div className="max-w-md mx-auto">
-            {fields.map((field, index) => {
-                if (field.type === 'multi-select') {
-                    return (
-                        <MultiSelectField
-                            key={index}
-                            name={field.name}
-                            label={field.label}
-                            value={formData[field.name] || []}
-                            options={field.options}
-                            onChange={handleInputChange}
-                            error={field.error}
-                        />
-                    );
-                } else {
-                    return (
-                        <TextField
-                            key={index}
-                            name={field.name}
-                            label={field.label}
-                            initialValue={formData[field.name] || field.initialValue}
-                            editable={field.editable}
-                            showEditIcon={field.showEditIcon}
-                            type={field.type}
-                            onChange={handleInputChange}
-                            options={field.options}
-                            error={field.error}
-                        />
-                    );
-                }
-            })}
-            <div className="flex justify-center">
-                <button
-                    className={`font-bold py-2 px-4 rounded mt-4 m-4 ${
-                        buttonName.toLowerCase() === 'delete user' ? 'bg-red-500 hover:bg-red-700' : 'bg-blue-500 hover:bg-blue-700'
-                    } text-white`}
-                    onClick={handleSubmit}
-                >
-                    {buttonName}
-                </button>
-            </div>
+  return (
+    <div className="max-w-xl mx-auto bg-gradient-to-br from-gray-100 to-white shadow-lg rounded-lg p-8">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6">Form Details</h1>
+      <form onSubmit={handleSubmit}>
+        {fields.map((field, index) => (
+          <div key={index} className="mb-6">
+            {field.type === "multi-select" ? (
+              <MultiSelectField
+                name={field.name}
+                label={field.label}
+                value={formData[field.name] || []}
+                options={field.options}
+                onChange={handleInputChange}
+                error={field.error}
+              />
+            ) : (
+              <TextField
+                name={field.name}
+                label={field.label}
+                initialValue={formData[field.name] || field.initialValue}
+                editable={field.editable}
+                showEditIcon={field.showEditIcon}
+                type={field.type}
+                onChange={handleInputChange}
+                error={field.error}
+              />
+            )}
+          </div>
+        ))}
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className={`w-full py-3 px-6 text-lg font-medium rounded-lg shadow-md transition-transform transform hover:scale-105 ${
+              buttonName.toLowerCase() === "delete user"
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
+            {buttonName}
+          </button>
         </div>
-    );
+      </form>
+    </div>
+  );
 };
-
 
 export default FormField;

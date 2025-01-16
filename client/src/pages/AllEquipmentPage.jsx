@@ -14,8 +14,7 @@ const AllEquipmentPage = () => {
 
   useEffect(() => {
     const fetchEquipments = async () => {
-      if (!equipments)
-        await getAllEquipments();
+      if (!equipments) await getAllEquipments();
     };
 
     fetchEquipments();
@@ -26,34 +25,48 @@ const AllEquipmentPage = () => {
   };
 
   return (
-    <>
+    <div className="bg-gray-100 min-h-screen">
       <Banner goBackPath="/resource-management" />
-      <div className="flex justify-center my-4">
-        <div className="text-blue-500 p-4 rounded-lg text-3xl">
-          All Equipment
+      <div className="max-w-7xl mx-auto py-8 px-4">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+          <h1 className="text-4xl font-extrabold text-blue-600 mb-4 md:mb-0">
+            All Equipment
+          </h1>
+          {user && user.isAdmin && (
+            <Link
+              to={"/new-equipment"}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
+            >
+              + New Equipment
+            </Link>
+          )}
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+
+        {/* Equipment Table */}
+        <div className="bg-white shadow-md rounded-lg p-4">
+          {equipments && equipments.length > 0 ? (
+            <Table
+              cards={equipments.filter((equipment) =>
+                equipment.equipmentName.toLowerCase().includes(searchTerm)
+              )}
+              isAdmin={user && user.isAdmin}
+              context={"equipment"}
+            />
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              No equipment found. Please check your search term or add new
+              equipment.
+            </div>
+          )}
         </div>
       </div>
-      <div className="flex justify-between items-center mx-8 mb-4">
-        <SearchBar onSearch={handleSearch} />
-        {user && user.isAdmin && (
-          <Link
-            to={"/new-equipment"}
-            className="bg-[#2260FF] text-white px-2 py-1 rounded-md font-medium text-xl"
-          >
-            New Equipment
-          </Link>
-        )}
-      </div>
-      <div className="p-8">
-        {equipments && <Table
-          cards={equipments.filter((equipment) =>
-            equipment.equipmentName.toLowerCase().includes(searchTerm)
-          )}
-          isAdmin={user && user.isAdmin}
-          context={"equipment"}
-        />}
-      </div>
-    </>
+    </div>
   );
 };
 

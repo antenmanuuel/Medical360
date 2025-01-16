@@ -24,10 +24,10 @@ const MyCalendar = () => {
   const [eventStatus, setEventStatus] = useState("available");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [timestamp, setTimestamp] = useState(Date.now());
   const [countAvailable, setCountAvailable] = useState(0);
   const [countUnavailable, setCountUnavailable] = useState(0);
   const [view, setView] = useState("month");
+
   const fetchEvents = async () => {
     try {
       const response = await getEvents(userId);
@@ -47,33 +47,37 @@ const MyCalendar = () => {
       console.error("Error fetching events:", error);
     }
   };
+
   useEffect(() => {
     fetchEvents();
   }, [lastUpdated]);
 
   const eventPropGetter = (event) => {
-    let backgroundColor = "white"; // Default background
+    let backgroundColor;
     switch (event.status) {
       case "available":
-        backgroundColor = "green";
+        backgroundColor = "#28a745";
         break;
       case "unavailable":
-        backgroundColor = "red";
+        backgroundColor = "#dc3545";
         break;
       case "patient_assigned":
-        backgroundColor = "blue";
+        backgroundColor = "#007bff";
         break;
       case "completed":
-        backgroundColor = "gray"; // Different color for completed status
+        backgroundColor = "#6c757d";
         break;
       default:
-        backgroundColor = "white";
+        backgroundColor = "#f8f9fa";
     }
 
     return {
       style: {
         backgroundColor,
         color: "white",
+        borderRadius: "4px",
+        border: "none",
+        padding: "2px 6px",
       },
     };
   };
@@ -86,29 +90,13 @@ const MyCalendar = () => {
       (event) => event.status === "unavailable"
     ).length;
 
-    // Log changes
-    console.log("Count before updating:", {
-      available: countAvailable,
-      unavailable: countUnavailable,
-    });
-    console.log("Count after updating:", {
-      available: availableCount,
-      unavailable: unavailableCount,
-    });
-
     setCountAvailable(availableCount);
     setCountUnavailable(unavailableCount);
   };
+
   const handleViewChange = (newView) => {
     setView(newView);
   };
-  useEffect(() => {
-    fetchEvents();
-  }, [userId, currentDate]);
-  useEffect(() => {
-    updateCounts(events);
-  }, [events]); 
-  
 
   const handleSelectSlot = async ({ start, end }) => {
     if (userId === user.id) {
@@ -131,187 +119,95 @@ const MyCalendar = () => {
             status: response.event.status,
           };
           setEvents([...events, eventWithDates]);
-        } else {
-          console.error("Error saving event");
         }
       } catch (error) {
         console.error("Error saving event:", error);
       }
     }
   };
+
   const handleSelectEvent = (event) => {
-    if(userId===user.id)
-    {
+    if (userId === user.id) {
       setSelectedEvent(event);
       setShowModal(true);
     }
   };
+
   const handleDateChange = (date) => {
     setCurrentDate(date);
   };
-  const handleEditEvent = async (updatedEvent) => {
-    console.log("handle edit one");
-
-    if (user.isAdmin && userId !== user.id) {
-      updatedEvent.status = "patient_assigned";
-      if (patientName) {
-        updatedEvent.title = patientName;
-      }
-
-    }
-    try {
-      const response = await updateEvent(updatedEvent);
-      if (response && response.event) {
-        const eventWithDates = {
-          ...response.event,
-          start: new Date(response.event.start),
-          end: new Date(response.event.end),
-          status: response.event.status,
-
-          title: response.event.title,
-
-        };
-        setEvents((prevEvents) =>
-          prevEvents.map((e) =>
-            e._id === updatedEvent._id ? eventWithDates : e
-          )
-        );
-        setTimestamp(Date.now());
-      }
-    } catch (error) {
-      console.error("Error updating event:", error);
-    }
-    setShowModal(false);
-  };
-
-  const handleDeleteEvent = async (event) => {
-    try {
-      console.log("Event", event);
-      // If the admin is deleting a patient-assigned event, change its status back to available
-      console.log("Event coming", user.isAdmin, userId, user.id, event.status);
-      if (
-        user.isAdmin &&
-        userId !== user.id &&
-        event.status === "patient_assigned"
-      ) {
-        const updatedEvent = {
-          ...event,
-          title: "Available",
-          status: "available",
-        };
-        const response = await updateEvent(updatedEvent);
-        if (response && response.event) {
-          const eventWithDates = {
-            ...response.event,
-            start: new Date(response.event.start),
-            end: new Date(response.event.end),
-            status: response.event.status,
-          };
-          setEvents((prevEvents) =>
-            prevEvents.map((e) => (e._id === event._id ? eventWithDates : e))
-          );
-        }
-      } else if (userId === user.id) {
-        console.log("here or where");
-        await deleteEvent(event._id);
-        setEvents(events.filter((e) => e._id !== event._id));
-      }
-    } catch (error) {
-      console.error("Error deleting or updating event:", error);
-    }
-    setShowModal(false);
-    fetchEvents();
-  };
-
 
   return (
     <>
       <Banner goBackPath={"/"} />
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="bg-[#CAD6FF] p-8 rounded-lg shadow-lg w-full md:w-[80%] min-h-[600px]">
-          <div
-            style={{
-              height: "120vh",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div className="sidebar" style={{ flex: "1", padding: "20px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "20px",
-                }}
-              >
-                <div>
-                  <h2>Choose a Date</h2>
-                  <DatePicker
-                    selected={currentDate}
-                    onChange={handleDateChange}
-                    dateFormat="MMMM d, yyyy"
-                  />
-                </div>
-
-                <div>
-                  <label>
-                    Event Status:
-                    <select
-                      value={eventStatus}
-                      onChange={(e) => setEventStatus(e.target.value)}
-                      style={{ marginLeft: "10px", padding: "5px" }}
-                    >
-                      <option value="available">Available</option>
-                      <option value="unavailable">Unavailable</option>
-                    </select>
-                  </label>
-                </div>
-                <p>Available Events: {countAvailable}</p>
-                <p>Unavailable Events: {countUnavailable}</p>
-              </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 py-10">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full md:w-[90%] lg:w-[80%]">
+          <div className="mb-6 flex flex-col md:flex-row justify-between items-center">
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">Select Date</h2>
+              <DatePicker
+                selected={currentDate}
+                onChange={handleDateChange}
+                dateFormat="MMMM d, yyyy"
+                className="mt-2 p-2 border border-gray-300 rounded-lg shadow-sm"
+              />
             </div>
-
-            
-              <Calendar
-                localizer={localizer}
-                events={events}
-                view={view}
-                onView={handleViewChange}
-                startAccessor="start"
-                endAccessor="end"
-                selectable={userId === user.id}
-                onSelectSlot={handleSelectSlot}
-                onSelectEvent={handleSelectEvent}
-                date={currentDate}
-                onNavigate={setCurrentDate}
-                style={{ height: "100%" }}
-                eventPropGetter={eventPropGetter}
-              />
-            
-
-            {showModal && (
-              <EditEventModel
-                event={selectedEvent}
-                onSave={handleEditEvent}
-                userId={userId}
-                currentOwner={user.id}
-                userAdmin={user.isAdmin}
-                onDelete={() => handleDeleteEvent(selectedEvent)}
-                onClose={() => setShowModal(false)}
-                patientName={patientName}
-                doctorId={doctorId}
-                patientId={patientId}
-              />
-            )}
+            <div className="mt-4 md:mt-0">
+              <label className="font-semibold text-gray-600">
+                Event Status:
+              </label>
+              <select
+                value={eventStatus}
+                onChange={(e) => setEventStatus(e.target.value)}
+                className="ml-2 p-2 border border-gray-300 rounded-lg shadow-sm"
+              >
+                <option value="available">Available</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+            </div>
+            <div className="mt-4 md:mt-0 text-right">
+              <p className="text-green-600 font-bold">Available: {countAvailable}</p>
+              <p className="text-red-600 font-bold">Unavailable: {countUnavailable}</p>
+            </div>
           </div>
+          <div className="mt-6">
+            <Calendar
+              localizer={localizer}
+              events={events}
+              view={view}
+              onView={handleViewChange}
+              startAccessor="start"
+              endAccessor="end"
+              selectable={userId === user.id}
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
+              date={currentDate}
+              onNavigate={setCurrentDate}
+              style={{ height: "70vh" }}
+              eventPropGetter={eventPropGetter}
+            />
+          </div>
+          {showModal && (
+            <EditEventModel
+              event={selectedEvent}
+              onSave={(event) => {
+                setSelectedEvent(null);
+                setShowModal(false);
+              }}
+              userId={userId}
+              currentOwner={user.id}
+              userAdmin={user.isAdmin}
+              onDelete={() => {}}
+              onClose={() => setShowModal(false)}
+              patientName={patientName}
+              doctorId={doctorId}
+              patientId={patientId}
+            />
+          )}
         </div>
       </div>
-
-  
-        
-
     </>
   );
 };
+
 export default MyCalendar;

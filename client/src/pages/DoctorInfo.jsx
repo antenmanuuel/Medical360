@@ -1,9 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Banner from "../components/Banner";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { useGlobalContext } from "../hooks/useGlobalContext";
-import MyCalendar from "./MyCalendar";
 
 const DoctorInfo = () => {
   const { doctorId } = useParams();
@@ -12,8 +10,8 @@ const DoctorInfo = () => {
   const [department, setDepartment] = useState(null);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const { getDoctor, getDepartment, getDoctorByUser, getEvents,getUser,BASE_URL} =
+  const [imagePreview, setImagePreview] = useState("");
+  const { getDoctor, getDepartment, getDoctorByUser, getEvents, getUser, BASE_URL } =
     useGlobalContext();
 
   const initialAverageTimes = {
@@ -25,19 +23,10 @@ const DoctorInfo = () => {
     Friday: { averageStartTime: "N/A", averageEndTime: "N/A" },
     Saturday: { averageStartTime: "N/A", averageEndTime: "N/A" },
   };
-  const [averageTimesByDay, setAverageTimesByDay] =
-    useState(initialAverageTimes);
+  const [averageTimesByDay, setAverageTimesByDay] = useState(initialAverageTimes);
 
   const getDayOfWeek = (date) => {
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     return days[new Date(date).getDay()];
   };
 
@@ -55,8 +44,7 @@ const DoctorInfo = () => {
     events.forEach((event) => {
       const day = getDayOfWeek(event.start);
       const startMinutes =
-        new Date(event.start).getHours() * 60 +
-        new Date(event.start).getMinutes();
+        new Date(event.start).getHours() * 60 + new Date(event.start).getMinutes();
       const endMinutes =
         new Date(event.end).getHours() * 60 + new Date(event.end).getMinutes();
       daysOfWeek[day].push({ startMinutes, endMinutes });
@@ -106,15 +94,11 @@ const DoctorInfo = () => {
           setDepartment(dept.departmentName);
           const userData = await getDoctorByUser(doctorId);
           setUserId(userData._id);
-          const userDatawithImage = await getUser(userData._id);
-          setUser(userDatawithImage);
-          console.log(`Image URL: ${BASE_URL}/${userDatawithImage.image}`);
-          setImagePreview(`${BASE_URL}/${userDatawithImage.image}`);
-
-         
+          const userDataWithImage = await getUser(userData._id);
+          setUser(userDataWithImage);
+          setImagePreview(`${BASE_URL}/${userDataWithImage.image}`);
 
           const events = await getEvents(userData._id);
-
           const averageTimesByDayUpdated = getAverageTimesByDay(events);
           setAverageTimesByDay(averageTimesByDayUpdated);
         }
@@ -127,29 +111,30 @@ const DoctorInfo = () => {
       fetchDoctorDetails();
     }
   }, [doctorId]);
- 
-  
-  
+
   if (!doctor) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <p className="text-xl font-semibold text-gray-700">Loading...</p>
+      </div>
+    );
   }
+
   const hasValidSchedule = Object.values(averageTimesByDay).some(
-    times => times.averageStartTime !== 'N/A' || times.averageEndTime !== 'N/A'
+    (times) => times.averageStartTime !== "N/A" || times.averageEndTime !== "N/A"
   );
   const doctorName = location.state?.doctorName;
-  const { patientId, patientName } = location.state || {};
   const previousPage = location.state?.origin || "/apppage";
- 
+
   return (
     <>
       <Banner goBackPath={previousPage} showGoBackButton={true} />
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="bg-[#CAD6FF] p-8 rounded-lg shadow-lg max-w-5xl w-full min-h-[600px]">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="bg-white p-8 rounded-xl shadow-md max-w-4xl w-full">
           {/* Row 1: Image and Details */}
-          <div className="flex -mx-4 items-start">
+          <div className="flex flex-col md:flex-row items-center md:items-start mb-8">
             <div
-              className="flex-none rounded-full overflow-hidden border-4 border-white shadow-lg"
-              style={{ width: "200px", height: "200px" }}
+              className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-blue-600 shadow-lg mb-6 md:mb-0"
             >
               <img
                 src={imagePreview}
@@ -157,13 +142,12 @@ const DoctorInfo = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex-1 px-4 space-y-4">
-              <div className="bg-[#2260FF] text-white p-4 rounded-lg">
+            <div className="md:ml-8 flex-1 space-y-4">
+              <div className="bg-blue-500 text-white p-4 rounded-md">
                 <h3 className="font-semibold text-md">Experience</h3>
                 <p>{doctor.experience}</p>
               </div>
-
-              <div className="bg-[#2260FF] text-white p-4 rounded-lg">
+              <div className="bg-blue-500 text-white p-4 rounded-md">
                 <h3 className="font-semibold text-md">Focus</h3>
                 <p>{doctor.profileDetails?.focusAreas?.join(", ")}</p>
                 <h3 className="font-semibold text-md">Specialization</h3>
@@ -173,73 +157,36 @@ const DoctorInfo = () => {
           </div>
 
           {/* Row 2: Name and Department */}
-          <div className="flex justify-center items-center bg-white p-4 rounded-lg mt-4">
-            <div>
-              <h2 className="text-xl font-semibold text-center text-[#2260FF]">
-                {doctorName}
-              </h2>
-              <p className="text-center">
-                {department ? department : "Loading department..."}
-              </p>
-            </div>
+          <div className="bg-gray-100 p-4 rounded-md text-center">
+            <h2 className="text-xl font-semibold text-blue-600">{doctorName}</h2>
+            <p>{department || "Loading department..."}</p>
           </div>
 
           {/* Row 3: Schedule */}
-          <div className="flex flex-col justify-center items-center bg-white p-4 rounded-lg mt-4">
-            <div className="flex items-center space-x-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-                className="w-6 h-6"
-                stroke="#2260FF"
-                strokeWidth="2"
-              >
-                <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120V256c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24z" />
-              </svg>
-              <h3 className="text-lg text-[#2260FF]">Schedule</h3>
-            </div>
-
+          <div className="mt-6 bg-gray-100 p-4 rounded-md text-center">
+            <h3 className="text-lg font-semibold text-blue-600 mb-4">Schedule</h3>
             {hasValidSchedule ? (
-              <div>
-                {Object.entries(averageTimesByDay).map(([day, times]) => {
-                  if (times.averageStartTime !== 'N/A' || times.averageEndTime !== 'N/A') {
-                    return (
-                      <div key={day}>
-                        <p><b>{day}</b>: {times.averageStartTime} to {times.averageEndTime}</p>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
+              Object.entries(averageTimesByDay).map(([day, times]) => (
+                <p key={day} className="text-sm">
+                  <b>{day}:</b> {times.averageStartTime} - {times.averageEndTime}
+                </p>
+              ))
             ) : (
-              <p>No schedule available to show.</p>
+              <p className="text-gray-600">No schedule available to show.</p>
             )}
           </div>
 
           {/* Row 4: Profile */}
-          <div className="bg-white p-4 rounded-lg mt-4">
-            <h3 className="text-[#2260FF] font-semibold text-lg">Profile</h3>
+          <div className="mt-6 bg-gray-100 p-4 rounded-md">
+            <h3 className="text-blue-600 font-semibold text-lg">Profile</h3>
             <p className="text-gray-600">{doctor.profileDetails.biography}</p>
           </div>
 
           {/* Row 5: Schedule Button */}
-          {/* {!showCalendar ? (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => setShowCalendar(true)} // Toggle calendar on button click
-                className="bg-[#2260FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800"
-              >
-                Schedule
-              </button>
-            </div>
-          ) : (
-            <MyCalendar userId={userId} /> // Pass userId to MyCalendar
-          )} */}
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-8">
             <Link
               to={`/doctor-schedule/${userId}`}
-              className="bg-[#2260FF] text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800"
+              className="bg-blue-600 text-white px-8 py-3 rounded-md text-sm font-semibold hover:bg-blue-700 shadow-md transition duration-300"
             >
               Schedule
             </Link>

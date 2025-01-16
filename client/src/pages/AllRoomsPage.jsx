@@ -9,12 +9,10 @@ import { useGlobalContext } from "../hooks/useGlobalContext";
 const AllRoomsPage = () => {
   const { user } = useAuthContext();
   const { rooms, getAllRooms, lastUpdated } = useGlobalContext();
-  const [allRooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     getAllRooms();
-    
   }, [lastUpdated]);
 
   const handleSearch = (term) => {
@@ -22,40 +20,53 @@ const AllRoomsPage = () => {
   };
 
   return (
-    <>
+    <div className="bg-gray-100 min-h-screen">
       <Banner goBackPath="/resource-management" />
-      <div className="flex justify-center my-4">
-        <div className="text-blue-500 p-4 rounded-lg text-3xl">All Rooms</div>
+
+      <div className="max-w-7xl mx-auto py-8 px-4">
+        {/* Title */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-extrabold text-blue-600">All Rooms</h1>
+          {user && user.isAdmin && (
+            <Link
+              to="/new-room"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-medium"
+            >
+              New Room
+            </Link>
+          )}
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar onSearch={handleSearch} placeholder="Search by room number..." />
+        </div>
+
+        {/* Rooms Table */}
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          {rooms && (
+            <Table
+              cards={Object.values(rooms)
+                .sort((a, b) => {
+                  const roomNumberA = parseInt(a.roomNumber.match(/\d+/), 10);
+                  const roomNumberB = parseInt(b.roomNumber.match(/\d+/), 10);
+                  return roomNumberA - roomNumberB;
+                })
+                .filter((room) =>
+                  room.roomNumber.toLowerCase().includes(searchTerm)
+                )}
+              isAdmin={user && user.isAdmin}
+              context={"room"}
+            />
+          )}
+          {!rooms && (
+            <div className="text-center py-10">
+              <p className="text-gray-500">No rooms available to display.</p>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between items-center mx-8 mb-4">
-        <SearchBar onSearch={handleSearch} />
-        {user && user.isAdmin && (
-          <Link
-            to={"/new-room"}
-            className="bg-[#2260FF] text-white px-2 py-1 rounded-md font-medium text-xl"
-          >
-            New Room
-          </Link>
-        )}
-      </div>
-      <div className="p-8">
-        {rooms && (
-          <Table
-            cards={Object.values(rooms)
-              .sort((a, b) => {
-                const roomNumberA = parseInt(a.roomNumber.match(/\d+/), 10);
-                const roomNumberB = parseInt(b.roomNumber.match(/\d+/), 10);
-                return roomNumberA - roomNumberB;
-              })
-              .filter((room) =>
-                room.roomNumber.toLowerCase().includes(searchTerm)
-              )}
-            isAdmin={user && user.isAdmin}
-            context={"room"}
-          />
-        )}
-      </div>
-    </>
+    </div>
   );
 };
 
