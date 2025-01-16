@@ -48,8 +48,8 @@ A modern web-based hospital management system designed to manage patients, docto
 ---
 
 ### Login Credentials
-- **User** Admin
-- **Password** admin@13
+- **Email**:admin@example.com
+- **Password**:admin@123
 
 
 ---
