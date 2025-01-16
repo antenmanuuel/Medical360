@@ -71,12 +71,21 @@ A modern web-based hospital management system designed to manage patients, docto
    ```bash
    cd server && npm install
    ```
-#### 4. **Start the server**
+#### 4. **Create a .env file in the server**
+   ```bash
+    touch .env
+   ```
+#### 5. **Paste this into the .env file**
+   ```bash
+    JWT_SECRET="bc73f42fc7f4a452d56eeaaf12edf7ea6728e43d718bdcbebb4532e15c0eb76d"
+   ```
+
+#### 6. **Start the server**
    ```bash
     npm start
    ```
 
-#### 5. **Start the client**
+#### 7. **Start the client**
    ```bash
     cd .. && cd client && npm run dev
    ```
