@@ -60,8 +60,8 @@ A modern web-based hospital management system designed to manage patients, docto
 
 #### 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/hospital-management-system.git
-   cd hospital-management-system
+   git clone https://github.com/antenmanuuel/Medical360.git
+   cd Medical360
    ```
 #### 2. **Go the the client folder and install packages**
    ```bash
